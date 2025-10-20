@@ -4,13 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎬 Clipify - Video Uploader</title>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js"></script>
-
 <style>
 :root{
   --bg:linear-gradient(135deg,#0b1120,#1e3a8a);
@@ -24,18 +17,50 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;overflow-x:hidden;}
-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:12px;margin:10px;box-shadow:0 8px 25px rgba(0,0,0,0.4);flex-wrap:wrap;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s ease-in-out;}
-header h1{font-size:28px;font-weight:700;color:#3b82f6;background: linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 2px 6px rgba(0,0,0,0.4);}
+
+/* Header */
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:15px 20px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(12px);
+  border-radius:12px;
+  margin:10px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  flex-wrap:wrap;
+  border:1px solid rgba(255,255,255,0.2);
+  transition:all 0.3s ease-in-out;
+}
+header h1{
+  font-size:28px;font-weight:700;
+  color:#3b82f6;
+  background: linear-gradient(90deg,#3b82f6,#60a5fa);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 2px 6px rgba(0,0,0,0.4);
+}
 .nav-buttons{display:flex;gap:10px;flex-wrap:wrap;}
-.btn{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:white;border:none;padding:10px 18px;border-radius:50px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.4s ease;box-shadow:0 4px 15px rgba(59,130,246,0.4);}
-.btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 20px rgba(59,130,246,0.5);}
+.btn{
+  background:linear-gradient(135deg,#3b82f6,#60a5fa);
+  color:white;border:none;padding:10px 18px;border-radius:50px;
+  font-weight:600;font-size:14px;cursor:pointer;transition:all 0.4s ease;
+  box-shadow:0 4px 15px rgba(59,130,246,0.4);
+}
+.btn:hover{
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 6px 20px rgba(59,130,246,0.5);
+}
+
+/* Container & Cards */
 .container{max-width:1100px;margin:20px auto;padding:0 15px;display:flex;flex-direction:column;gap:25px;}
 .card{background:var(--card);border-radius:var(--radius);padding:25px;box-shadow:0 10px 30px var(--shadow);transition:all 0.4s;opacity:0;transform:translateY(15px);}
 .card.show{opacity:1;transform:translateY(0);}
 .card:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(59,130,246,0.5);}
 .card h2{color:var(--accent);margin-bottom:18px;font-size:22px;border-left:5px solid var(--accent);padding-left:10px;text-shadow:0 1px 2px rgba(0,0,0,0.5);}
 label{display:block;margin-top:10px;font-size:14px;color:var(--subtext);font-weight:500;}
-input[type="text"],input[type="number"],input[type="email"],input[type="password"],textarea,input[type="file"]{width:100%;margin-top:6px;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius);color:var(--text);font-size:14px;transition:all 0.3s;}
+input[type="text"],input[type="number"],input[type="email"],input[type="password"],textarea,input[type="file"]{
+  width:100%;margin-top:6px;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius);color:var(--text);font-size:14px;transition:all 0.3s;
+}
 input:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 10px rgba(59,130,246,0.4);}
 textarea{resize:none;}
 .video-list{display:flex;flex-direction:column;gap:18px;max-height:500px;overflow-y:auto;padding-right:5px;scroll-behavior:smooth;}
@@ -46,12 +71,33 @@ textarea{resize:none;}
 .small-text{font-size:13px;color:var(--subtext);}
 .hidden{display:none;}
 footer{text-align:center;color:var(--subtext);font-size:13px;margin:30px 0;}
+
+/* Drag & Drop */
 #dropArea{border:2px dashed var(--accent);border-radius:var(--radius);padding:25px;text-align:center;cursor:pointer;color:var(--subtext);transition:all 0.3s;touch-action:manipulation;}
 #dropArea.hover{background:rgba(59,130,246,0.1);}
+
+/* Profile Image */
 #profileImagePreview,#profileImageEditPreview{width:100px;height:100px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:2px solid var(--accent);}
-@media(max-width:1024px){header{flex-direction:column;align-items:flex-start;}header h1{margin-bottom:10px;font-size:24px;}.video-item video{max-height:240px;}}
-@media(max-width:768px){.container{padding:0 10px;}.btn{padding:8px 15px;font-size:13px;}.video-item video{max-height:200px;}#profileImagePreview,#profileImageEditPreview{width:80px;height:80px;}}
-@media(max-width:480px){header h1{font-size:20px;}.video-item video{max-height:160px;}#dropArea{padding:18px;font-size:14px;}#profileImagePreview,#profileImageEditPreview{width:70px;height:70px;}.btn{padding:6px 12px;font-size:12px;}}
+
+/* Responsive */
+@media(max-width:1024px){
+  header{flex-direction:column;align-items:flex-start;}
+  header h1{margin-bottom:10px;font-size:24px;}
+  .video-item video{max-height:240px;}
+}
+@media(max-width:768px){
+  .container{padding:0 10px;}
+  .btn{padding:8px 15px;font-size:13px;}
+  .video-item video{max-height:200px;}
+  #profileImagePreview,#profileImageEditPreview{width:80px;height:80px;}
+}
+@media(max-width:480px){
+  header h1{font-size:20px;}
+  .video-item video{max-height:160px;}
+  #dropArea{padding:18px;font-size:14px;}
+  #profileImagePreview,#profileImageEditPreview{width:70px;height:70px;}
+  .btn{padding:6px 12px;font-size:12px;}
+}
 </style>
 </head>
 <body>
@@ -69,7 +115,6 @@ footer{text-align:center;color:var(--subtext);font-size:13px;margin:30px 0;}
 </header>
 
 <div class="container">
-
 <!-- Home -->
 <div id="homeTab" class="card show">
 <h2>Recent Upload Videos</h2>
@@ -87,11 +132,12 @@ footer{text-align:center;color:var(--subtext);font-size:13px;margin:30px 0;}
 <button type="button" class="btn" id="gotoSignupBtn" style="margin-top:10px;">Go to Sign Up</button>
 </form>
 
+<!-- Forgot Password Form -->
 <form id="forgotPasswordForm" class="hidden" style="margin-top:15px;">
 <label>Enter your registered Email</label>
 <input type="email" id="forgotEmail" placeholder="Enter your email" required>
 <label>Enter new Password</label>
-<input type="password" id="forgotNewPassword" placeholder="New password" required>
+<input type="password" id="forgotNewPassword" placeholder="New password (min 6 chars, letters & numbers)" required>
 <button type="submit" class="btn" style="margin-top:12px;">Reset Password</button>
 <button type="button" class="btn" id="cancelForgot" style="margin-top:10px;">Cancel</button>
 </form>
@@ -144,21 +190,7 @@ footer{text-align:center;color:var(--subtext);font-size:13px;margin:30px 0;}
 <footer>© 2025 Clipify</footer>
 
 <script>
-/* ---------------- Firebase Init ---------------- */
-const firebaseConfig = {
-    apiKey: "AIzaSyBcYViS5q8gr4--KQFW-mOQeMM6wgar-28",
-    authDomain: "clipify-app-33cc9.firebaseapp.com",
-    projectId: "clipify-app-33cc9",
-    storageBucket: "clipify-app-33cc9.appspot.com",
-    messagingSenderId: "767440826437",
-    appId: "1:767440826437:web:600ab1ced7905ad871f32c"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-/* ---------------- UI Elements ---------------- */
+// Tabs
 const homeBtn=document.getElementById('homeBtn');
 const uploadBtn=document.getElementById('uploadBtn');
 const loginBtn=document.getElementById('loginBtn');
@@ -182,170 +214,178 @@ const profileImagePreview=document.getElementById('profileImagePreview');
 const profileImageEditPreview=document.getElementById('profileImageEditPreview');
 const gotoSignupBtn=document.getElementById('gotoSignupBtn');
 const gotoLoginBtn=document.getElementById('gotoLoginBtn');
+
+// Forgot password elements
 const forgotPasswordBtn=document.getElementById('forgotPasswordBtn');
 const forgotPasswordForm=document.getElementById('forgotPasswordForm');
 const cancelForgot=document.getElementById('cancelForgot');
 
-/* ---------------- Tabs & Nav ---------------- */
+// Storage
+let users=JSON.parse(localStorage.getItem('users')||'[]');
+let videos=JSON.parse(localStorage.getItem('videos')||'[]');
+let currentUser=JSON.parse(localStorage.getItem('currentUser')||'null');
+
+// Helper functions
+function validateEmail(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);}
+function validatePassword(p){return /^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(p);}
 function showTab(tab){
     [homeTab,uploadTab,loginTab,signupTab,profileTab].forEach(t=>t.classList.add('hidden'));
     [homeTab,uploadTab,loginTab,signupTab,profileTab].forEach(t=>t.classList.remove('show'));
     switch(tab){
-        case'home':homeTab.classList.remove('hidden');homeTab.classList.add('show'); break;
-        case'upload':if(!auth.currentUser){alert('Login first');showTab('login');return;} uploadTab.classList.remove('hidden');uploadTab.classList.add('show'); break;
-        case'login':loginTab.classList.remove('hidden');loginTab.classList.add('show'); break;
-        case'signup':signupTab.classList.remove('hidden');signupTab.classList.add('show'); break;
-        case'profile':if(!auth.currentUser){alert('Login first');showTab('login');return;} profileTab.classList.remove('hidden');profileTab.classList.add('show'); fillProfile(); break;
+        case'home':homeTab.classList.remove('hidden');homeTab.classList.add('show');break;
+        case'upload':if(!currentUser){alert('Login first');showTab('login');return;}uploadTab.classList.remove('hidden');uploadTab.classList.add('show');break;
+        case'login':loginTab.classList.remove('hidden');loginTab.classList.add('show');break;
+        case'signup':signupTab.classList.remove('hidden');signupTab.classList.add('show');break;
+        case'profile':if(!currentUser){alert('Login first');showTab('login');return;}profileTab.classList.remove('hidden');profileTab.classList.add('show');fillProfile();break;
     }
 }
 function updateNav(){
-    if(auth.currentUser){logoutBtn.classList.remove('hidden');profileBtn.classList.remove('hidden');loginBtn.classList.add('hidden');signupBtn.classList.add('hidden');}
+    if(currentUser){logoutBtn.classList.remove('hidden');profileBtn.classList.remove('hidden');loginBtn.classList.add('hidden');signupBtn.classList.add('hidden');}
     else{logoutBtn.classList.add('hidden');profileBtn.classList.add('hidden');loginBtn.classList.remove('hidden');signupBtn.classList.remove('hidden');}
 }
 
-/* ---------------- Auth Events ---------------- */
-signupForm.addEventListener('submit', async (e)=>{
+// Display videos
+function displayVideos(){
+    videoList.innerHTML='';
+    if(videos.length===0){videoList.innerHTML='<p class="small-text">No videos uploaded yet.</p>';return;}
+    [...videos].reverse().forEach((v,index)=>{
+        const div=document.createElement('div');
+        div.className='video-item';
+        div.innerHTML=`<video controls src="${v.url}"></video><div class="video-meta"><div><strong>${v.title}</strong><br><span class="small-text">${v.description}</span><br><span class="small-text"><em>Uploaded by: ${v.userName}</em></span></div>${currentUser&&v.userEmail===currentUser.email?`<button class="btn" onclick="deleteVideo(${videos.length-1-index})">Delete</button>`:''}</div>`;
+        videoList.appendChild(div);
+    });
+}
+function deleteVideo(index){if(confirm('Delete this video?')){videos.splice(index,1);localStorage.setItem('videos',JSON.stringify(videos));displayVideos();}}
+
+// Fill profile
+function fillProfile(){
+    document.getElementById('profileName').value=currentUser.name;
+    document.getElementById('profileAge').value=currentUser.age;
+    document.getElementById('profileEmail').value=currentUser.email;
+    document.getElementById('profilePassword').value=currentUser.password;
+    if(currentUser.profileImage){profileImageEditPreview.src=currentUser.profileImage;profileImageEditPreview.classList.remove('hidden');}else{profileImageEditPreview.classList.add('hidden');}
+}
+
+// Tabs events
+homeBtn.addEventListener('click',()=>showTab('home'));
+uploadBtn.addEventListener('click',()=>showTab('upload'));
+loginBtn.addEventListener('click',()=>showTab('login'));
+signupBtn.addEventListener('click',()=>showTab('signup'));
+profileBtn.addEventListener('click',()=>showTab('profile'));
+logoutBtn.addEventListener('click',()=>{currentUser=null;localStorage.setItem('currentUser','null');updateNav();showTab('login');});
+
+// Login
+loginForm.addEventListener('submit',(e)=>{
+    e.preventDefault();
+    let email=document.getElementById('loginEmail').value;
+    let password=document.getElementById('loginPassword').value;
+    let user=users.find(u=>u.email===email);
+    if(!user){alert('No user found');return;}
+    if(user.password!==password){alert('Incorrect password');return;}
+    currentUser=user;
+    localStorage.setItem('currentUser',JSON.stringify(currentUser));
+    loginForm.reset();
+    updateNav();
+    showTab('upload');
+});
+gotoSignupBtn.addEventListener('click',()=>showTab('signup'));
+
+// Forgot Password Events
+forgotPasswordBtn.addEventListener('click', ()=>{
+    loginForm.classList.add('hidden');
+    forgotPasswordForm.classList.remove('hidden');
+});
+cancelForgot.addEventListener('click', ()=>{
+    forgotPasswordForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+});
+forgotPasswordForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value;
+    const newPassword = document.getElementById('forgotNewPassword').value;
+    if(!validateEmail(email)){alert("Invalid Email!"); return;}
+    if(!validatePassword(newPassword)){alert("Weak Password! Use letters and numbers, min 6 chars."); return;}
+    const user = users.find(u => u.email === email);
+    if(!user){alert("Email not registered!"); return;}
+    user.password = newPassword;
+    localStorage.setItem('users', JSON.stringify(users));
+    alert("Password reset successfully! Please login.");
+    forgotPasswordForm.reset();
+    forgotPasswordForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+});
+
+// Sign Up
+signupForm.addEventListener('submit',(e)=>{
     e.preventDefault();
     let name=document.getElementById('signupName').value;
     let age=document.getElementById('signupAge').value;
     let email=document.getElementById('signupEmail').value;
     let password=document.getElementById('signupPassword').value;
-    const file=document.getElementById('signupProfileImage').files[0];
-
-    try{
-        const userCredential = await auth.createUserWithEmailAndPassword(email,password);
-        const user = userCredential.user;
-
-        let profileImageURL = '';
-        if(file){
-            const storageRef = storage.ref(`profiles/${user.uid}/${file.name}`);
-            await storageRef.put(file);
-            profileImageURL = await storageRef.getDownloadURL();
-        }
-
-        await db.collection('users').doc(user.uid).set({name,age,email,profileImage:profileImageURL});
-        alert('Signup successful!');
-        signupForm.reset();
-        showTab('upload');
-    } catch(error){alert(error.message);}
+    if(!validateEmail(email)){alert('Invalid email');return;}
+    if(!validatePassword(password)){alert('Weak password');return;}
+    let profileImage=document.getElementById('signupProfileImage').files[0]?URL.createObjectURL(document.getElementById('signupProfileImage').files[0]):null;
+    let user={name,age,email,password,profileImage};
+    users.push(user);
+    localStorage.setItem('users',JSON.stringify(users));
+    currentUser=user;
+    localStorage.setItem('currentUser',JSON.stringify(currentUser));
+    signupForm.reset();
+    updateNav();
+    showTab('upload');
 });
-
-loginForm.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    let email=document.getElementById('loginEmail').value;
-    let password=document.getElementById('loginPassword').value;
-    try{
-        await auth.signInWithEmailAndPassword(email,password);
-        alert('Login successful!');
-        loginForm.reset();
-        showTab('upload');
-    } catch(error){alert(error.message);}
-});
-
-logoutBtn.addEventListener('click',()=>auth.signOut().then(()=>{updateNav(); showTab('login');}));
-
-gotoSignupBtn.addEventListener('click',()=>showTab('signup'));
 gotoLoginBtn.addEventListener('click',()=>showTab('login'));
+document.getElementById('signupProfileImage').addEventListener('change',(e)=>{if(e.target.files[0]){profileImagePreview.src=URL.createObjectURL(e.target.files[0]);profileImagePreview.classList.remove('hidden');}else{profileImagePreview.classList.add('hidden');}});
 
-/* ---------------- Forgot Password ---------------- */
-forgotPasswordBtn.addEventListener('click', ()=>{loginForm.classList.add('hidden'); forgotPasswordForm.classList.remove('hidden');});
-cancelForgot.addEventListener('click', ()=>{forgotPasswordForm.classList.add('hidden'); loginForm.classList.remove('hidden');});
-forgotPasswordForm.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const email = document.getElementById('forgotEmail').value;
-    try{
-        await auth.sendPasswordResetEmail(email);
-        alert('Password reset email sent!');
-        forgotPasswordForm.reset();
-        forgotPasswordForm.classList.add('hidden');
-        loginForm.classList.remove('hidden');
-    } catch(error){alert(error.message);}
-});
+// Upload Drag & Drop
+dropArea.addEventListener('click',()=>fileInput.click());
+dropArea.addEventListener('dragover',(e)=>{e.preventDefault();dropArea.classList.add('hover');});
+dropArea.addEventListener('dragleave',(e)=>{dropArea.classList.remove('hover');});
+dropArea.addEventListener('drop',(e)=>{e.preventDefault();dropArea.classList.remove('hover');fileInput.files=e.dataTransfer.files;previewFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',(e)=>previewFile(e.target.files[0]));
+function previewFile(file){if(file){const video=document.createElement('video');video.src=URL.createObjectURL(file);video.controls=true;preview.innerHTML='';preview.appendChild(video);uploadForm.classList.remove('hidden');}}
 
-/* ---------------- Video Upload ---------------- */
-dropArea.addEventListener('click', ()=>fileInput.click());
-dropArea.addEventListener('dragover', (e)=>{e.preventDefault(); dropArea.classList.add('hover');});
-dropArea.addEventListener('dragleave', (e)=>{dropArea.classList.remove('hover');});
-dropArea.addEventListener('drop', (e)=>{e.preventDefault(); dropArea.classList.remove('hover'); fileInput.files=e.dataTransfer.files; previewFile(e.dataTransfer.files[0]);});
-fileInput.addEventListener('change', (e)=>previewFile(e.target.files[0]));
-
-function previewFile(file){
-    if(file){const video=document.createElement('video'); video.src=URL.createObjectURL(file); video.controls=true; preview.innerHTML=''; preview.appendChild(video); uploadForm.classList.remove('hidden');}
-}
-
-uploadForm.addEventListener('submit', async (e)=>{
+// Upload form
+uploadForm.addEventListener('submit',(e)=>{
     e.preventDefault();
     const file=fileInput.files[0];
+    if(!file){alert('Select video');return;}
     const title=document.getElementById('title').value;
     const description=document.getElementById('description').value;
-    if(!file){alert('Select video'); return;}
-
-    try{
-        const user = auth.currentUser;
-        const storageRef = storage.ref(`videos/${user.uid}/${file.name}`);
-        await storageRef.put(file);
-        const url = await storageRef.getDownloadURL();
-
-        await db.collection('videos').add({title,description,url,userName:user.email,userEmail:user.email,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        alert('Video uploaded!');
-        uploadForm.reset();
-        preview.innerHTML='';
-        displayVideos();
-        showTab('home');
-    } catch(error){alert(error.message);}
+    const url=URL.createObjectURL(file);
+    videos.push({title,description,url,userName:currentUser.name,userEmail:currentUser.email});
+    localStorage.setItem('videos',JSON.stringify(videos));
+    displayVideos();
+    uploadForm.reset();
+    preview.innerHTML='';
+    showTab('home');
 });
 
-/* ---------------- Display Videos ---------------- */
-async function displayVideos(){
-    const snapshot = await db.collection('videos').orderBy('createdAt','desc').get();
-    videoList.innerHTML='';
-    snapshot.forEach(doc=>{
-        const v = doc.data();
-        const div=document.createElement('div');
-        div.className='video-item';
-        div.innerHTML=`<video controls src="${v.url}"></video><div class="video-meta"><div><strong>${v.title}</strong><br><span class="small-text">${v.description}</span><br><span class="small-text"><em>Uploaded by: ${v.userName}</em></span></div></div>`;
-        videoList.appendChild(div);
-    });
-}
-
-/* ---------------- Profile Edit ---------------- */
-function fillProfile(){
-    const user = auth.currentUser;
-    db.collection('users').doc(user.uid).get().then(doc=>{
-        const data = doc.data();
-        document.getElementById('profileName').value = data.name;
-        document.getElementById('profileAge').value = data.age;
-        document.getElementById('profileEmail').value = data.email;
-        profileImageEditPreview.src = data.profileImage || '';
-        profileImageEditPreview.classList.toggle('hidden',!data.profileImage);
-    });
-}
-
-profileForm.addEventListener('submit', async (e)=>{
+// Profile edit
+profileForm.addEventListener('submit',(e)=>{
     e.preventDefault();
-    const user = auth.currentUser;
-    let name = document.getElementById('profileName').value;
-    let age = document.getElementById('profileAge').value;
-    let file = document.getElementById('profileImageEdit').files[0];
-    let profileImageURL = '';
-
-    try{
-        if(file){
-            const storageRef = storage.ref(`profiles/${user.uid}/${file.name}`);
-            await storageRef.put(file);
-            profileImageURL = await storageRef.getDownloadURL();
-        }
-        await db.collection('users').doc(user.uid).update({name,age,profileImage:profileImageURL||undefined});
-        alert('Profile updated!');
-        showTab('home');
-    } catch(error){alert(error.message);}
+    let name=document.getElementById('profileName').value;
+    let age=document.getElementById('profileAge').value;
+    let email=document.getElementById('profileEmail').value;
+    let password=document.getElementById('profilePassword').value;
+    if(!validateEmail(email)){alert('Invalid email');return;}
+    if(!validatePassword(password)){alert('Weak password');return;}
+    let userIndex=users.findIndex(u=>u.email===currentUser.email);
+    let profileImage=document.getElementById('profileImageEdit').files[0]?URL.createObjectURL(document.getElementById('profileImageEdit').files[0]):currentUser.profileImage;
+    users[userIndex]={name,age,email,password,profileImage};
+    currentUser={name,age,email,password,profileImage};
+    localStorage.setItem('users',JSON.stringify(users));
+    localStorage.setItem('currentUser',JSON.stringify(currentUser));
+    alert('Profile updated!');
+    updateNav();
+    showTab('home');
 });
 
-/* ---------------- Initial ---------------- */
+// Initial
 updateNav();
 displayVideos();
-auth.onAuthStateChanged(()=>{updateNav(); displayVideos(); if(auth.currentUser) showTab('home'); else showTab('login');});
+if(!currentUser) showTab('login'); else showTab('home');
 </script>
+
 </body>
-  </html>
-  
+</html>
