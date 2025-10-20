@@ -5,39 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎬 Clipify - Video Uploader</title>
 
-<!-- Firebase SDK (Modular v10+) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { 
-    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
-    sendPasswordResetEmail, onAuthStateChanged, signOut 
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { 
-    getFirestore, collection, addDoc, getDocs, doc, updateDoc, setDoc, query, orderBy 
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { 
-    getStorage, ref, uploadBytes, getDownloadURL 
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-  // 🔥 Your Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBcYViS5q8gr4--KQFW-mOQeMM6wgar-28",
-    authDomain: "clipify-app-33cc9.firebaseapp.com",
-    projectId: "clipify-app-33cc9",
-    storageBucket: "clipify-app-33cc9.firebasestorage.app",
-    messagingSenderId: "767440826437",
-    appId: "1:767440826437:web:dc243cfcb8f85e5a71f32c"
-  };
-
-  // ✅ Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  // Expose for global script usage
-  window.firebaseApp = { auth, db, storage, collection, addDoc, getDocs, query, orderBy, ref, uploadBytes, getDownloadURL, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut };
-</script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js"></script>
 
 <style>
 :root{
@@ -51,36 +23,35 @@
   --radius:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:15px 20px;background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(12px);border-radius:12px;margin:10px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.4);
-  border:1px solid rgba(255,255,255,0.2);
-}
-header h1{
-  font-size:28px;font-weight:700;
-  color:#3b82f6;
-  background:linear-gradient(90deg,#3b82f6,#60a5fa);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;overflow-x:hidden;}
+header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:12px;margin:10px;box-shadow:0 8px 25px rgba(0,0,0,0.4);flex-wrap:wrap;border:1px solid rgba(255,255,255,0.2);transition:all 0.3s ease-in-out;}
+header h1{font-size:28px;font-weight:700;color:#3b82f6;background: linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 2px 6px rgba(0,0,0,0.4);}
 .nav-buttons{display:flex;gap:10px;flex-wrap:wrap;}
-.btn{
-  background:linear-gradient(135deg,#3b82f6,#60a5fa);
-  color:white;border:none;padding:10px 18px;border-radius:50px;
-  font-weight:600;font-size:14px;cursor:pointer;transition:0.4s;
-}
-.btn:hover{transform:translateY(-2px) scale(1.03);}
-.container{max-width:900px;margin:20px auto;padding:0 15px;display:flex;flex-direction:column;gap:25px;}
-.card{background:var(--card);border-radius:var(--radius);padding:25px;box-shadow:0 10px 30px var(--shadow);}
-label{display:block;margin-top:10px;font-size:14px;color:var(--subtext);}
-input,textarea{width:100%;margin-top:6px;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius);color:var(--text);}
+.btn{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:white;border:none;padding:10px 18px;border-radius:50px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.4s ease;box-shadow:0 4px 15px rgba(59,130,246,0.4);}
+.btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 20px rgba(59,130,246,0.5);}
+.container{max-width:1100px;margin:20px auto;padding:0 15px;display:flex;flex-direction:column;gap:25px;}
+.card{background:var(--card);border-radius:var(--radius);padding:25px;box-shadow:0 10px 30px var(--shadow);transition:all 0.4s;opacity:0;transform:translateY(15px);}
+.card.show{opacity:1;transform:translateY(0);}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(59,130,246,0.5);}
+.card h2{color:var(--accent);margin-bottom:18px;font-size:22px;border-left:5px solid var(--accent);padding-left:10px;text-shadow:0 1px 2px rgba(0,0,0,0.5);}
+label{display:block;margin-top:10px;font-size:14px;color:var(--subtext);font-weight:500;}
+input[type="text"],input[type="number"],input[type="email"],input[type="password"],textarea,input[type="file"]{width:100%;margin-top:6px;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius);color:var(--text);font-size:14px;transition:all 0.3s;}
+input:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 10px rgba(59,130,246,0.4);}
 textarea{resize:none;}
-.video-item{background:rgba(255,255,255,0.05);padding:10px;border-radius:var(--radius);margin-bottom:10px;}
-video{width:100%;border-radius:var(--radius);}
+.video-list{display:flex;flex-direction:column;gap:18px;max-height:500px;overflow-y:auto;padding-right:5px;scroll-behavior:smooth;}
+.video-item{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.05);border-radius:var(--radius);padding:12px;transition:0.3s;}
+.video-item:hover{background:rgba(255,255,255,0.1);transform:scale(1.01);box-shadow:0 5px 20px var(--shadow);}
+.video-item video{width:100%;max-height:280px;object-fit:cover;border-radius:var(--radius);}
+.video-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:6px;}
+.small-text{font-size:13px;color:var(--subtext);}
 .hidden{display:none;}
-footer{text-align:center;margin:30px 0;color:var(--subtext);}
+footer{text-align:center;color:var(--subtext);font-size:13px;margin:30px 0;}
+#dropArea{border:2px dashed var(--accent);border-radius:var(--radius);padding:25px;text-align:center;cursor:pointer;color:var(--subtext);transition:all 0.3s;touch-action:manipulation;}
+#dropArea.hover{background:rgba(59,130,246,0.1);}
+#profileImagePreview,#profileImageEditPreview{width:100px;height:100px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:2px solid var(--accent);}
+@media(max-width:1024px){header{flex-direction:column;align-items:flex-start;}header h1{margin-bottom:10px;font-size:24px;}.video-item video{max-height:240px;}}
+@media(max-width:768px){.container{padding:0 10px;}.btn{padding:8px 15px;font-size:13px;}.video-item video{max-height:200px;}#profileImagePreview,#profileImageEditPreview{width:80px;height:80px;}}
+@media(max-width:480px){header h1{font-size:20px;}.video-item video{max-height:160px;}#dropArea{padding:18px;font-size:14px;}#profileImagePreview,#profileImageEditPreview{width:70px;height:70px;}.btn{padding:6px 12px;font-size:12px;}}
 </style>
 </head>
 <body>
@@ -89,9 +60,11 @@ footer{text-align:center;margin:30px 0;color:var(--subtext);}
 <h1>🎬 Clipify</h1>
 <div class="nav-buttons">
 <button class="btn" id="homeBtn">Home</button>
-<button class="btn" id="uploadBtn">Upload</button>
+<button class="btn" id="uploadBtn">Upload Video</button>
 <button class="btn" id="loginBtn">Login</button>
+<button class="btn hidden" id="signupBtn">Sign Up</button>
 <button class="btn hidden" id="logoutBtn">Logout</button>
+<button class="btn hidden" id="profileBtn">Profile</button>
 </div>
 </header>
 
@@ -99,156 +72,280 @@ footer{text-align:center;margin:30px 0;color:var(--subtext);}
 
 <!-- Home -->
 <div id="homeTab" class="card show">
-<h2>Recent Uploads</h2>
-<div id="videoList"></div>
+<h2>Recent Upload Videos</h2>
+<div id="videoList" class="video-list"></div>
 </div>
 
 <!-- Login -->
 <div id="loginTab" class="card hidden">
 <h2>Login</h2>
-<input type="email" id="loginEmail" placeholder="Email" required>
-<input type="password" id="loginPassword" placeholder="Password" required>
-<button class="btn" id="loginSubmit">Login</button>
-<button class="btn" id="signupBtn">Sign Up</button>
-<button class="btn" id="forgotBtn">Forgot Password?</button>
+<form id="loginForm">
+<label>Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required>
+<label>Password</label><input type="password" id="loginPassword" placeholder="Enter password" required>
+<button type="submit" class="btn" style="margin-top:12px;">Login</button>
+<button type="button" class="btn" id="forgotPasswordBtn" style="margin-top:10px;">Forgot Password?</button>
+<button type="button" class="btn" id="gotoSignupBtn" style="margin-top:10px;">Go to Sign Up</button>
+</form>
+
+<form id="forgotPasswordForm" class="hidden" style="margin-top:15px;">
+<label>Enter your registered Email</label>
+<input type="email" id="forgotEmail" placeholder="Enter your email" required>
+<label>Enter new Password</label>
+<input type="password" id="forgotNewPassword" placeholder="New password" required>
+<button type="submit" class="btn" style="margin-top:12px;">Reset Password</button>
+<button type="button" class="btn" id="cancelForgot" style="margin-top:10px;">Cancel</button>
+</form>
 </div>
 
 <!-- Sign Up -->
 <div id="signupTab" class="card hidden">
 <h2>Sign Up</h2>
-<input type="email" id="signupEmail" placeholder="Email" required>
-<input type="password" id="signupPassword" placeholder="Password" required>
-<button class="btn" id="signupSubmit">Create Account</button>
-<button class="btn" id="gotoLogin">Go to Login</button>
+<form id="signupForm">
+<label>Name</label><input type="text" id="signupName" placeholder="Enter name" required>
+<label>Age</label><input type="number" id="signupAge" placeholder="Enter age" required>
+<label>Email</label><input type="email" id="signupEmail" placeholder="Enter email" required>
+<label>Password</label><input type="password" id="signupPassword" placeholder="Enter password" required>
+<label>Profile Image (Optional)</label><input type="file" id="signupProfileImage" accept="image/*">
+<img id="profileImagePreview" class="hidden" alt="Preview">
+<small class="small-text">Password min 6 characters with letters & numbers</small>
+<button type="submit" class="btn" style="margin-top:12px;">Sign Up</button>
+<button type="button" class="btn" id="gotoLoginBtn" style="margin-top:10px;">Go to Login</button>
+</form>
 </div>
 
 <!-- Upload -->
 <div id="uploadTab" class="card hidden">
-<h2>Upload Video</h2>
+<h2>Upload Your Video</h2>
+<div id="dropArea">Drag & Drop your video here or click to select</div>
+<form id="uploadForm" class="hidden">
 <input type="file" id="videoFile" accept="video/*">
-<input type="text" id="videoTitle" placeholder="Title">
-<textarea id="videoDesc" placeholder="Description"></textarea>
-<button class="btn" id="uploadSubmit">Upload</button>
-<div id="status"></div>
+<input type="text" id="title" placeholder="Enter title" required>
+<textarea id="description" rows="3" placeholder="Write a short description"></textarea>
+<button type="submit" class="btn" style="margin-top:12px;">Upload</button>
+</form>
+<div id="preview"></div>
+</div>
+
+<!-- Profile Edit -->
+<div id="profileTab" class="card hidden">
+<h2>Edit Profile</h2>
+<img id="profileImageEditPreview" class="hidden" alt="Profile Preview">
+<form id="profileForm">
+<label>Name</label><input type="text" id="profileName" required>
+<label>Age</label><input type="number" id="profileAge" required>
+<label>Email</label><input type="email" id="profileEmail" required>
+<label>Password</label><input type="password" id="profilePassword" required>
+<label>Profile Image (Optional)</label><input type="file" id="profileImageEdit">
+<button type="submit" class="btn" style="margin-top:12px;">Save Profile</button>
+</form>
 </div>
 
 </div>
-<footer>© 2025 Clipify | Firebase + GitHub Pages</footer>
+<footer>© 2025 Clipify</footer>
 
 <script>
-const {
-  auth, db, storage, collection, addDoc, getDocs, query, orderBy, ref, uploadBytes, getDownloadURL,
-  createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut
-} = window.firebaseApp;
+/* ---------------- Firebase Init ---------------- */
+const firebaseConfig = {
+    apiKey: "AIzaSyBcYViS5q8gr4--KQFW-mOQeMM6wgar-28",
+    authDomain: "clipify-app-33cc9.firebaseapp.com",
+    projectId: "clipify-app-33cc9",
+    storageBucket: "clipify-app-33cc9.appspot.com",
+    messagingSenderId: "767440826437",
+    appId: "1:767440826437:web:600ab1ced7905ad871f32c"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-// UI elements
-const homeBtn = document.getElementById('homeBtn');
-const uploadBtn = document.getElementById('uploadBtn');
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const homeTab = document.getElementById('homeTab');
-const loginTab = document.getElementById('loginTab');
-const signupTab = document.getElementById('signupTab');
-const uploadTab = document.getElementById('uploadTab');
-const videoList = document.getElementById('videoList');
-const statusDiv = document.getElementById('status');
+/* ---------------- UI Elements ---------------- */
+const homeBtn=document.getElementById('homeBtn');
+const uploadBtn=document.getElementById('uploadBtn');
+const loginBtn=document.getElementById('loginBtn');
+const signupBtn=document.getElementById('signupBtn');
+const logoutBtn=document.getElementById('logoutBtn');
+const profileBtn=document.getElementById('profileBtn');
+const homeTab=document.getElementById('homeTab');
+const uploadTab=document.getElementById('uploadTab');
+const loginTab=document.getElementById('loginTab');
+const signupTab=document.getElementById('signupTab');
+const profileTab=document.getElementById('profileTab');
+const loginForm=document.getElementById('loginForm');
+const signupForm=document.getElementById('signupForm');
+const profileForm=document.getElementById('profileForm');
+const videoList=document.getElementById('videoList');
+const dropArea=document.getElementById('dropArea');
+const uploadForm=document.getElementById('uploadForm');
+const fileInput=document.getElementById('videoFile');
+const preview=document.getElementById('preview');
+const profileImagePreview=document.getElementById('profileImagePreview');
+const profileImageEditPreview=document.getElementById('profileImageEditPreview');
+const gotoSignupBtn=document.getElementById('gotoSignupBtn');
+const gotoLoginBtn=document.getElementById('gotoLoginBtn');
+const forgotPasswordBtn=document.getElementById('forgotPasswordBtn');
+const forgotPasswordForm=document.getElementById('forgotPasswordForm');
+const cancelForgot=document.getElementById('cancelForgot');
 
-function show(tab){
-  [homeTab, loginTab, signupTab, uploadTab].forEach(t=>t.classList.add('hidden'));
-  if(tab==='home') homeTab.classList.remove('hidden');
-  if(tab==='login') loginTab.classList.remove('hidden');
-  if(tab==='signup') signupTab.classList.remove('hidden');
-  if(tab==='upload') uploadTab.classList.remove('hidden');
+/* ---------------- Tabs & Nav ---------------- */
+function showTab(tab){
+    [homeTab,uploadTab,loginTab,signupTab,profileTab].forEach(t=>t.classList.add('hidden'));
+    [homeTab,uploadTab,loginTab,signupTab,profileTab].forEach(t=>t.classList.remove('show'));
+    switch(tab){
+        case'home':homeTab.classList.remove('hidden');homeTab.classList.add('show'); break;
+        case'upload':if(!auth.currentUser){alert('Login first');showTab('login');return;} uploadTab.classList.remove('hidden');uploadTab.classList.add('show'); break;
+        case'login':loginTab.classList.remove('hidden');loginTab.classList.add('show'); break;
+        case'signup':signupTab.classList.remove('hidden');signupTab.classList.add('show'); break;
+        case'profile':if(!auth.currentUser){alert('Login first');showTab('login');return;} profileTab.classList.remove('hidden');profileTab.classList.add('show'); fillProfile(); break;
+    }
+}
+function updateNav(){
+    if(auth.currentUser){logoutBtn.classList.remove('hidden');profileBtn.classList.remove('hidden');loginBtn.classList.add('hidden');signupBtn.classList.add('hidden');}
+    else{logoutBtn.classList.add('hidden');profileBtn.classList.add('hidden');loginBtn.classList.remove('hidden');signupBtn.classList.remove('hidden');}
 }
 
-// Auth state
-onAuthStateChanged(auth, user=>{
-  if(user){
-    loginBtn.classList.add('hidden');
-    logoutBtn.classList.remove('hidden');
-    uploadBtn.classList.remove('hidden');
-    show('home');
-    loadVideos();
-  }else{
-    loginBtn.classList.remove('hidden');
-    logoutBtn.classList.add('hidden');
-    uploadBtn.classList.add('hidden');
-    show('login');
-  }
+/* ---------------- Auth Events ---------------- */
+signupForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    let name=document.getElementById('signupName').value;
+    let age=document.getElementById('signupAge').value;
+    let email=document.getElementById('signupEmail').value;
+    let password=document.getElementById('signupPassword').value;
+    const file=document.getElementById('signupProfileImage').files[0];
+
+    try{
+        const userCredential = await auth.createUserWithEmailAndPassword(email,password);
+        const user = userCredential.user;
+
+        let profileImageURL = '';
+        if(file){
+            const storageRef = storage.ref(`profiles/${user.uid}/${file.name}`);
+            await storageRef.put(file);
+            profileImageURL = await storageRef.getDownloadURL();
+        }
+
+        await db.collection('users').doc(user.uid).set({name,age,email,profileImage:profileImageURL});
+        alert('Signup successful!');
+        signupForm.reset();
+        showTab('upload');
+    } catch(error){alert(error.message);}
 });
 
-// Signup
-document.getElementById('signupSubmit').onclick = async ()=>{
-  const email = document.getElementById('signupEmail').value;
-  const password = document.getElementById('signupPassword').value;
-  try{
-    await createUserWithEmailAndPassword(auth,email,password);
-    alert("Account created successfully!");
-    show('upload');
-  }catch(e){alert(e.message);}
-};
+loginForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    let email=document.getElementById('loginEmail').value;
+    let password=document.getElementById('loginPassword').value;
+    try{
+        await auth.signInWithEmailAndPassword(email,password);
+        alert('Login successful!');
+        loginForm.reset();
+        showTab('upload');
+    } catch(error){alert(error.message);}
+});
 
-// Login
-document.getElementById('loginSubmit').onclick = async ()=>{
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  try{
-    await signInWithEmailAndPassword(auth,email,password);
-    show('upload');
-  }catch(e){alert(e.message);}
-};
+logoutBtn.addEventListener('click',()=>auth.signOut().then(()=>{updateNav(); showTab('login');}));
 
-// Forgot Password
-document.getElementById('forgotBtn').onclick = async ()=>{
-  const email = prompt("Enter your email:");
-  if(!email) return;
-  try{
-    await sendPasswordResetEmail(auth,email);
-    alert("Reset email sent!");
-  }catch(e){alert(e.message);}
-};
+gotoSignupBtn.addEventListener('click',()=>showTab('signup'));
+gotoLoginBtn.addEventListener('click',()=>showTab('login'));
 
-// Logout
-logoutBtn.onclick = ()=>signOut(auth);
+/* ---------------- Forgot Password ---------------- */
+forgotPasswordBtn.addEventListener('click', ()=>{loginForm.classList.add('hidden'); forgotPasswordForm.classList.remove('hidden');});
+cancelForgot.addEventListener('click', ()=>{forgotPasswordForm.classList.add('hidden'); loginForm.classList.remove('hidden');});
+forgotPasswordForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value;
+    try{
+        await auth.sendPasswordResetEmail(email);
+        alert('Password reset email sent!');
+        forgotPasswordForm.reset();
+        forgotPasswordForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+    } catch(error){alert(error.message);}
+});
 
-// Upload
-document.getElementById('uploadSubmit').onclick = async ()=>{
-  const file = document.getElementById('videoFile').files[0];
-  const title = document.getElementById('videoTitle').value;
-  const desc = document.getElementById('videoDesc').value;
-  if(!file){alert("Select a video file!");return;}
-  statusDiv.textContent = "Uploading...";
-  try{
-    const storageRef = ref(storage, 'videos/'+Date.now()+'_'+file.name);
-    await uploadBytes(storageRef,file);
-    const url = await getDownloadURL(storageRef);
-    await addDoc(collection(db,'videos'),{title,desc,url,user:auth.currentUser.email,createdAt:new Date()});
-    statusDiv.textContent = "Uploaded!";
-    loadVideos();
-  }catch(e){alert(e.message);statusDiv.textContent="Failed";}
-};
+/* ---------------- Video Upload ---------------- */
+dropArea.addEventListener('click', ()=>fileInput.click());
+dropArea.addEventListener('dragover', (e)=>{e.preventDefault(); dropArea.classList.add('hover');});
+dropArea.addEventListener('dragleave', (e)=>{dropArea.classList.remove('hover');});
+dropArea.addEventListener('drop', (e)=>{e.preventDefault(); dropArea.classList.remove('hover'); fileInput.files=e.dataTransfer.files; previewFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change', (e)=>previewFile(e.target.files[0]));
 
-// Load Videos
-async function loadVideos(){
-  videoList.innerHTML="";
-  const q = query(collection(db,'videos'),orderBy('createdAt','desc'));
-  const snap = await getDocs(q);
-  snap.forEach(doc=>{
-    const v=doc.data();
-    const div=document.createElement('div');
-    div.className='video-item';
-    div.innerHTML=`<h3>${v.title}</h3><p>${v.desc}</p><small>${v.user}</small><video controls src="${v.url}"></video>`;
-    videoList.appendChild(div);
-  });
+function previewFile(file){
+    if(file){const video=document.createElement('video'); video.src=URL.createObjectURL(file); video.controls=true; preview.innerHTML=''; preview.appendChild(video); uploadForm.classList.remove('hidden');}
 }
 
-// Navigation
-homeBtn.onclick=()=>show('home');
-uploadBtn.onclick=()=>show('upload');
-loginBtn.onclick=()=>show('login');
-document.getElementById('signupBtn').onclick=()=>show('signup');
-document.getElementById('gotoLogin').onclick=()=>show('login');
-</script>
+uploadForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const file=fileInput.files[0];
+    const title=document.getElementById('title').value;
+    const description=document.getElementById('description').value;
+    if(!file){alert('Select video'); return;}
 
+    try{
+        const user = auth.currentUser;
+        const storageRef = storage.ref(`videos/${user.uid}/${file.name}`);
+        await storageRef.put(file);
+        const url = await storageRef.getDownloadURL();
+
+        await db.collection('videos').add({title,description,url,userName:user.email,userEmail:user.email,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+        alert('Video uploaded!');
+        uploadForm.reset();
+        preview.innerHTML='';
+        displayVideos();
+        showTab('home');
+    } catch(error){alert(error.message);}
+});
+
+/* ---------------- Display Videos ---------------- */
+async function displayVideos(){
+    const snapshot = await db.collection('videos').orderBy('createdAt','desc').get();
+    videoList.innerHTML='';
+    snapshot.forEach(doc=>{
+        const v = doc.data();
+        const div=document.createElement('div');
+        div.className='video-item';
+        div.innerHTML=`<video controls src="${v.url}"></video><div class="video-meta"><div><strong>${v.title}</strong><br><span class="small-text">${v.description}</span><br><span class="small-text"><em>Uploaded by: ${v.userName}</em></span></div></div>`;
+        videoList.appendChild(div);
+    });
+}
+
+/* ---------------- Profile Edit ---------------- */
+function fillProfile(){
+    const user = auth.currentUser;
+    db.collection('users').doc(user.uid).get().then(doc=>{
+        const data = doc.data();
+        document.getElementById('profileName').value = data.name;
+        document.getElementById('profileAge').value = data.age;
+        document.getElementById('profileEmail').value = data.email;
+        profileImageEditPreview.src = data.profileImage || '';
+        profileImageEditPreview.classList.toggle('hidden',!data.profileImage);
+    });
+}
+
+profileForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const user = auth.currentUser;
+    let name = document.getElementById('profileName').value;
+    let age = document.getElementById('profileAge').value;
+    let file = document.getElementById('profileImageEdit').files[0];
+    let profileImageURL = '';
+
+    try{
+        if(file){
+            const storageRef = storage.ref(`profiles/${user.uid}/${file.name}`);
+            await storageRef.put(file);
+            profileImageURL = await storageRef.getDownloadURL();
+        }
+        await db.collection('users').doc(user.uid).update({name,age,profileImage:profileImageURL||undefined});
+        alert('Profile updated!');
+        showTab('home');
+    } catch(error){alert(error.message);}
+});
+
+/* ---------------- Initial ---------------- */
+updateNav();
+displayVideos();
+auth.onAuthStateChanged(()=>{updateNav(); displayVideos(); if(auth.currentUser) showTab('home'); else showTab('login');});
+</script>
 </body>
-</html>
+  </html>
+  
