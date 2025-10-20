@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 Clipify - Video Uploader</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"></script>
+
+  <!-- ✅ CSS Styling -->
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #0b1120, #1e3a8a);
+      --accent: #3b82f6;
+      --accent2: #60a5fa;
+      --text: #e5e7eb;
+      --subtext: #9ca3af;
+      --card-bg: rgba(255,255,255,0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    header {
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      color: var(--accent);
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      transition: 0.3s;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+    }
+
+    input, textarea {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, textarea:focus {
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 10px rgba(59,130,246,0.3);
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(59,130,246,0.4);
+      transition: 0.3s;
+    }
+
+    button:hover { transform: scale(1.03); opacity: 0.9; }
+
+    video {
+      width: 100%;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
+
+    #status { margin-top: 10px; font-size: 14px; color: var(--accent2); }
+
+    footer {
+      margin: 30px 0;
+      color: var(--subtext);
+      font-size: 13px;
+    }
+
+    .hidden { display: none; }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎬 Clipify</h1>
+    <p>Upload and Share Your Videos Instantly</p>
+  </header>
+
+  <!-- 🔐 AUTH -->
+  <div id="authSection" class="container">
+    <h2>Login / Sign Up</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn">Sign Up</button>
+    <p style="margin-top:10px;">
+      <a href="#" id="forgotLink">Forgot Password?</a>
+    </p>
+    <div id="authMsg"></div>
+  </div>
+
+  <!-- 📤 UPLOAD -->
+  <div id="uploadSection" class="container hidden">
+    <h2>Upload Your Video</h2>
+    <input type="file" id="videoFile" accept="video/*">
+    <input type="text" id="title" placeholder="Enter Title">
+    <textarea id="description" placeholder="Enter Description"></textarea>
+    <button id="uploadBtn">Upload</button>
+    <button id="logoutBtn" style="margin-top:10px;background:#ef4444;">Logout</button>
+    <div id="status"></div>
+  </div>
+
+  <!-- 🎥 VIDEOS -->
+  <div id="videoSection" class="container hidden">
+    <h2>Recent Uploads</h2>
+    <div id="videoList"></div>
+  </div>
+
+  <footer>© 2025 Clipify | Powered by Firebase + GitHub Pages</footer>
+
+  <!-- ✅ JavaScript -->
+  <script>
+    // 🔥 Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcYViS5q8gr4--KQFW-mOQeMM6wgar-28",
+      authDomain: "clipify-app-33cc9.firebaseapp.com",
+      projectId: "clipify-app-33cc9",
+      storageBucket: "clipify-app-33cc9.firebasestorage.app",
+      messagingSenderId: "767440826437",
+      appId: "1:767440826437:web:dc243cfcb8f85e5a71f32c"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Elements
+    const authSection = document.getElementById('authSection');
+    const uploadSection = document.getElementById('uploadSection');
+    const videoSection = document.getElementById('videoSection');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const forgotLink = document.getElementById('forgotLink');
+    const status = document.getElementById('status');
+    const authMsg = document.getElementById('authMsg');
+    const videoList = document.getElementById('videoList');
+
+    // Auth state
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        authSection.classList.add('hidden');
+        uploadSection.classList.remove('hidden');
+        videoSection.classList.remove('hidden');
+        loadVideos();
+      } else {
+        authSection.classList.remove('hidden');
+        uploadSection.classList.add('hidden');
+        videoSection.classList.add('hidden');
+      }
+    });
+
+    // Login
+    loginBtn.addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        authMsg.innerHTML = "";
+      } catch (error) {
+        authMsg.innerHTML = "❌ " + error.message;
+      }
+    });
+
+    // Sign Up
+    signupBtn.addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection("users").doc(email).set({ email, joined: new Date() });
+        authMsg.innerHTML = "✅ Account created! You can now upload videos.";
+      } catch (error) {
+        authMsg.innerHTML = "❌ " + error.message;
+      }
+    });
+
+    // Forgot Password
+    forgotLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = prompt("Enter your registered email:");
+      if (email) {
+        try {
+          await auth.sendPasswordResetEmail(email);
+          alert("Reset link sent to " + email);
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      await auth.signOut();
+    });
+
+    // Upload Video
+    uploadBtn.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (!user) { alert("Please login first!"); return; }
+
+      const file = document.getElementById('videoFile').files[0];
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+
+      if (!file || !title) {
+        alert("Please select a video and enter title!");
+        return;
+      }
+
+      status.innerHTML = "Uploading... ⏳";
+
+      try {
+        const storageRef = storage.ref(`videos/${user.uid}_${Date.now()}_${file.name}`);
+        await storageRef.put(file);
+        const url = await storageRef.getDownloadURL();
+
+        await db.collection("videos").add({
+          title,
+          description,
+          url,
+          user: user.email,
+          createdAt: new Date()
+        });
+
+        status.innerHTML = "✅ Uploaded successfully!";
+        loadVideos();
+      } catch (err) {
+        console.error(err);
+        status.innerHTML = "❌ Upload failed!";
+      }
+    });
+
+    // Load videos
+    async function loadVideos() {
+      videoList.innerHTML = "";
+      const snapshot = await db.collection("videos").orderBy("createdAt", "desc").get();
+      snapshot.forEach(doc => {
+        const v = doc.data();
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <h3>${v.title}</h3>
+          <p>${v.description}</p>
+          <small>Uploaded by: ${v.user}</small>
+          <video controls src="${v.url}"></video>
+        `;
+        videoList.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
